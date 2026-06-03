@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Development</title>
+</head>
+<body>
+    <p> Items:
+        <select id="numItems">
+            <option value="">---- Choose ----</option>
+            <option value="1">1</option>
+            <option value="5">5</option>
+            <option value="19">19</option>
+        </select>
+    </p>
+    <ul id="list"></ul>
+    <script>
+        const select = document.getElementById("numItems");
+        const list = document.getElementById("list");
+        
+        numItems.addEventListener("change", function() {
+            // alert('Change');
+            let listItems = Number(numItems.value);
+            // alert(listItems);
+            list.innerHTML = "";
+            for (let i = 1; i <= listItems; i++) {
+                let li = document.createElement("li");
+                li.textContent = "Item " + i;
+                list.appendChild(li);
+            }
+            this.options[0].disabled = true;
+        });
+      
+    </script>
+</body>
+</html>
