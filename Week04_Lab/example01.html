@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Development</title>
+</head>
+<body>
+    <h1>Example 1</h1>
+    <p id="counter">Counter: 0</p>
+    <p>
+        <input type="button" id="increment" value="Increment">
+        <input type="button" id="decrement" value="Decrement">
+    </p>
+    <script>
+        const counter = document.getElementById('counter');
+        const incrementButton = document.getElementById('increment');
+        const decrementButton = document.getElementById('decrement');
+        let count = 0;
+        
+        incrementButton.addEventListener('click', addOne);
+
+
+        function addOne() {
+            count++;
+            displayCount();
+        }
+
+        function displayCount() {
+            counter.textContent = `Counter: ${count}`;
+        }
+        
+        decrementButton.addEventListener('click', subtractOne);
+
+        function subtractOne() {
+            count--;
+            counter.textContent = `Counter: ${count}`;
+        }
+    </script>
+</body>
+</html>

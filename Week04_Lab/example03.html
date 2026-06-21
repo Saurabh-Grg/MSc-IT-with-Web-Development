@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Development</title>
+</head>
+<body>
+    <h1>Example 3</h1>
+    <img type="button" id="myButton" src="https://static.vecteezy.com/system/resources/thumbnails/032/176/191/small_2x/business-avatar-profile-black-icon-man-of-user-symbol-in-trendy-flat-style-isolated-on-male-profile-people-diverse-face-for-social-network-or-web-vector.jpg" alt="Student Image">
+    <p id="myDetails">
+        click the image to see my details
+    </p>
+    <p>
+        <input type="button" id="birthdayButton" value="Have a Birthday">
+    </p>
+    <p>
+        <input type="button" id="changeName" value="Change Name">
+    </p>
+    <script>
+        const myButton = document.getElementById('myButton');
+        const myDetails = document.getElementById('myDetails');
+        const birthdayButton = document.getElementById('birthdayButton');
+        const changeNameButton = document.getElementById('changeName');
+
+
+        birthdayButton.addEventListener('click', haveBirthday);
+        myButton.addEventListener('click', displayDetails);
+        changeNameButton.addEventListener('click', changeStudentName);
+
+        
+        function displayDetails() {
+            // alert("My details");
+            myDetails.textContent = student.name + ", " 
+            + student.bannerid + ", " 
+            + student.age + " years old, majoring in " 
+            + student.major;
+
+        }
+
+        function haveBirthday() {
+            student.haveBirthday();
+            displayDetails();
+        }
+
+        let student = {
+            name: "John Doe",
+            bannerid: "B00893896",
+            age: 24,
+            major: "Computer Science",
+
+            haveBirthday: function() {
+                this.age = this.age + 1;
+            }
+        };
+
+        function changeStudentName() {
+            const newName = prompt("Enter a new name:");
+                student.name = newName;
+                displayDetails();
+        }
+        
+    </script>
+</body>
+</html>

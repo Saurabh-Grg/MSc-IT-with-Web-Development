@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Number Bomb</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: #f5f5f3;
+    color: #1a1a18;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body { background: #1a1a18; color: #f0ede8; }
+    .card { background: #242422; border-color: rgba(255,255,255,0.1); }
+    .btn-big { background: #2c2c2a; border-color: rgba(255,255,255,0.15); color: #f0ede8; }
+    .btn-big:hover { background: #3a3a38; }
+    .stat-card { background: #2c2c2a; }
+    .stat-lbl { color: #888780; }
+    #overlay { background: #242422; }
+    #ov-sub { color: #888780; }
+    #target-label { color: #888780; }
+    #message { color: #888780; }
+    .hint-row { color: #888780; }
+  }
+
+  .card {
+    background: #fff;
+    border: 0.5px solid rgba(0,0,0,0.12);
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  h1 {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #888780;
+    text-align: center;
+    margin-bottom: 1.75rem;
+  }
+
+  #display { text-align: center; margin-bottom: 1.25rem; }
+
+  #big-num {
+    font-size: 80px;
+    font-weight: 500;
+    line-height: 1;
+    color: #1a1a18;
+    transition: color 0.2s;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    #big-num { color: #f0ede8; }
+  }
+
+  #target-label {
+    font-size: 13px;
+    color: #888780;
+    margin-top: 6px;
+  }
+
+  #zone-bar {
+    height: 5px;
+    border-radius: 3px;
+    background: rgba(0,0,0,0.08);
+    margin: 0.85rem 0;
+    overflow: hidden;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    #zone-bar { background: rgba(255,255,255,0.08); }
+  }
+
+  #zone-fill {
+    height: 100%;
+    border-radius: 3px;
+    width: 50%;
+    transition: width 0.15s, background 0.2s;
+    background: #3B6D11;
+  }
+
+  .hint-row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    font-size: 12px;
+    color: #888780;
+  }
+
+  .hint-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  #timer-wrap { text-align: center; margin: 0.85rem 0; }
+
+  #timer-bar {
+    display: inline-block;
+    width: 200px;
+    height: 4px;
+    background: rgba(0,0,0,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    #timer-bar { background: rgba(255,255,255,0.08); }
+  }
+
+  #timer-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: #185FA5;
+    transition: width 0.1s linear, background 0.3s;
+  }
+
+  #message {
+    text-align: center;
+    font-size: 14px;
+    color: #888780;
+    min-height: 22px;
+    margin-bottom: 1rem;
+  }
+
+  #controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .btn-big {
+    font-size: 32px;
+    width: 88px;
+    height: 88px;
+    border-radius: 12px;
+    cursor: pointer;
+    border: 0.5px solid rgba(0,0,0,0.15);
+    background: #fff;
+    color: #1a1a18;
+    transition: background 0.1s, transform 0.08s;
+    user-select: none;
+    line-height: 1;
+  }
+
+  .btn-big:hover { background: #f5f5f3; }
+  .btn-big:active { transform: scale(0.93); }
+
+  #stats {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-card {
+    background: #f5f5f3;
+    border-radius: 8px;
+    padding: 10px 0;
+    text-align: center;
+    flex: 1;
+  }
+
+  .stat-val {
+    font-size: 20px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-lbl {
+    font-size: 11px;
+    color: #888780;
+    margin-top: 2px;
+  }
+
+  #wrap { position: relative; }
+
+  #overlay {
+    display: none;
+    position: absolute;
+    inset: -2rem -1.5rem;
+    background: #fff;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    border-radius: 16px;
+    z-index: 10;
+  }
+
+  #overlay.show { display: flex; }
+
+  #ov-title {
+    font-size: 32px;
+    font-weight: 500;
+  }
+
+  #ov-sub {
+    font-size: 14px;
+    color: #888780;
+    text-align: center;
+    max-width: 260px;
+    line-height: 1.5;
+  }
+
+  #restart-btn {
+    width: auto;
+    padding: 0 32px;
+    font-size: 15px;
+    height: 48px;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Number Bomb</h1>
+  <div id="wrap">
+    <div id="display">
+      <div id="big-num">0</div>
+      <div id="target-label">match the target</div>
+      <div id="zone-bar"><div id="zone-fill"></div></div>
+      <div class="hint-row">
+        <span><span class="hint-dot" style="background:#3B6D11"></span>safe</span>
+        <span><span class="hint-dot" style="background:#BA7517"></span>warm</span>
+        <span><span class="hint-dot" style="background:#A32D2D"></span>danger</span>
+      </div>
+    </div>
+    <div id="timer-wrap"><div id="timer-bar"><div id="timer-fill" style="width:100%"></div></div></div>
+    <div id="message">Get to the target to defuse!</div>
+    <div id="controls">
+      <button class="btn-big" id="dec-btn">−</button>
+      <button class="btn-big" id="inc-btn">+</button>
+    </div>
+    <div id="stats">
+      <div class="stat-card"><div class="stat-val" id="score-val">0</div><div class="stat-lbl">score</div></div>
+      <div class="stat-card"><div class="stat-val" id="level-val">1</div><div class="stat-lbl">level</div></div>
+      <div class="stat-card"><div class="stat-val" id="streak-val">0</div><div class="stat-lbl">streak</div></div>
+    </div>
+    <div id="overlay">
+      <div id="ov-title"></div>
+      <div id="ov-sub"></div>
+      <button class="btn-big" id="restart-btn">play again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const bigNum     = document.getElementById('big-num');
+  const targetLabel = document.getElementById('target-label');
+  const zoneFill   = document.getElementById('zone-fill');
+  const message    = document.getElementById('message');
+  const timerFill  = document.getElementById('timer-fill');
+  const scoreVal   = document.getElementById('score-val');
+  const levelVal   = document.getElementById('level-val');
+  const streakVal  = document.getElementById('streak-val');
+  const overlay    = document.getElementById('overlay');
+  const ovTitle    = document.getElementById('ov-title');
+  const ovSub      = document.getElementById('ov-sub');
+  const incBtn     = document.getElementById('inc-btn');
+  const decBtn     = document.getElementById('dec-btn');
+  const restartBtn = document.getElementById('restart-btn');
+
+  let count, target, level, score, streak, timeLeft, maxTime, timerInterval, defused, gameOver;
+
+  function randomTarget(lvl) {
+    const range = Math.min(10 + lvl * 4, 60);
+    const sign  = Math.random() < 0.5 ? 1 : -1;
+    const val   = Math.floor(Math.random() * range) + 3;
+    return sign * val;
+  }
+
+  function getTimeForLevel(lvl) {
+    return Math.max(3500, 9000 - lvl * 400);
+  }
+
+  function startLevel() {
+    defused = false;
+    target  = randomTarget(level);
+    maxTime = getTimeForLevel(level);
+    timeLeft = maxTime;
+    targetLabel.textContent = `target: ${target}`;
+    message.textContent = `level ${level} — defuse the bomb!`;
+    bigNum.style.color = '';
+    updateZone();
+    clearInterval(timerInterval);
+    timerInterval = setInterval(tick, 80);
+  }
+
+  function tick() {
+    if (defused || gameOver) return;
+    timeLeft -= 80;
+    const pct = Math.max(0, timeLeft / maxTime * 100);
+    timerFill.style.width = pct + '%';
+    if      (pct < 30) timerFill.style.background = '#A32D2D';
+    else if (pct < 60) timerFill.style.background = '#BA7517';
+    else               timerFill.style.background = '#185FA5';
+    if (timeLeft <= 0) { clearInterval(timerInterval); showGameOver(); }
+  }
+
+  function updateZone() {
+    const diff  = Math.abs(count - target);
+    const range = Math.max(10 + level * 4, 13);
+    const pct   = Math.max(0, 100 - (diff / range) * 100);
+    zoneFill.style.width = pct + '%';
+    if      (diff === 0) { zoneFill.style.background = '#3B6D11'; bigNum.style.color = '#3B6D11'; }
+    else if (diff <= 2)  { zoneFill.style.background = '#639922'; bigNum.style.color = ''; }
+    else if (diff <= 5)  { zoneFill.style.background = '#BA7517'; bigNum.style.color = ''; }
+    else                 { zoneFill.style.background = '#A32D2D'; bigNum.style.color = ''; }
+
+    const msgs = diff === 0 ? [''] :
+                 diff <= 1  ? ['so close!', 'one away!'] :
+                 diff <= 3  ? ['getting warm...', 'nearly there!'] :
+                 diff <= 7  ? ['keep going...', 'find the target!'] :
+                              ['far off...', 'keep pressing!'];
+    if (diff !== 0) message.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+  }
+
+  function press(delta) {
+    if (defused || gameOver) return;
+    count += delta;
+    bigNum.textContent = count;
+    updateZone();
+    if (count === target) {
+      defused = true;
+      clearInterval(timerInterval);
+      const bonus  = Math.ceil(timeLeft / 500);
+      const points = level * 10 + bonus;
+      score  += points;
+      streak++;
+      level++;
+      scoreVal.textContent  = score;
+      levelVal.textContent  = level;
+      streakVal.textContent = streak;
+      message.textContent   = `defused! +${points} pts`;
+      count = 0;
+      bigNum.textContent = count;
+      setTimeout(() => { if (!gameOver) startLevel(); }, 900);
+    }
+  }
+
+  function showGameOver() {
+    gameOver = true;
+    streak   = 0;
+    ovTitle.textContent = score === 0 ? 'kaboom!' : "time's up!";
+    ovSub.textContent   = `you scored ${score} and reached level ${level}. can you do better?`;
+    streakVal.textContent = 0;
+    overlay.classList.add('show');
+  }
+
+  function initGame() {
+    count = 0; level = 1; score = 0; streak = 0;
+    gameOver = false; defused = false;
+    bigNum.textContent    = 0;
+    bigNum.style.color    = '';
+    scoreVal.textContent  = 0;
+    levelVal.textContent  = 1;
+    streakVal.textContent = 0;
+    timerFill.style.width      = '100%';
+    timerFill.style.background = '#185FA5';
+    overlay.classList.remove('show');
+    startLevel();
+  }
+
+  incBtn.addEventListener('click', () => press(1));
+  decBtn.addEventListener('click', () => press(-1));
+  restartBtn.addEventListener('click', initGame);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowUp'   || e.key === '+') press(1);
+    if (e.key === 'ArrowDown' || e.key === '-') press(-1);
+  });
+
+  initGame();
+</script>
+</body>
+</html>

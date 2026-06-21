@@ -1,0 +1,174 @@
+
+<style>
+  #app { padding: 1rem 0; font-size: 14px; }
+  .row { display: flex; gap: 8px; margin-bottom: 1rem; align-items: center; }
+  .row input[type=text] { flex: 1; }
+  .row input[type=number] { width: 72px; }
+  select { height: 36px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); padding: 0 8px; font-size: 14px; cursor: pointer; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1.25rem; }
+  .stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; }
+  .stat-n { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+  .stat-l { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+  .filters { display: flex; gap: 6px; margin-bottom: 0.85rem; flex-wrap: wrap; }
+  .filter-btn { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); cursor: pointer; transition: background 0.1s; }
+  .filter-btn.active { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-primary); }
+  .list { display: flex; flex-direction: column; gap: 6px; }
+  .item { display: flex; align-items: center; gap: 10px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 12px; transition: opacity 0.2s; }
+  .item.checked { opacity: 0.45; }
+  .item.checked .item-name { text-decoration: line-through; }
+  .item-check { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--color-border-secondary); cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--color-background-primary); transition: background 0.15s, border-color 0.15s; }
+  .item-check.done { background: var(--color-background-success); border-color: var(--color-border-success); }
+  .item-check.done::after { content: ''; display: block; width: 5px; height: 8px; border: 1.5px solid var(--color-text-success); border-top: none; border-left: none; transform: rotate(45deg) translate(-1px,-1px); }
+  .item-name { flex: 1; font-size: 14px; color: var(--color-text-primary); }
+  .item-qty { font-size: 12px; color: var(--color-text-secondary); margin-right: 4px; }
+  .cat-badge { font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 500; flex-shrink: 0; }
+  .cat-produce  { background: #EAF3DE; color: #3B6D11; }
+  .cat-dairy    { background: #E6F1FB; color: #185FA5; }
+  .cat-meat     { background: #FAECE7; color: #993C1D; }
+  .cat-bakery   { background: #FAEEDA; color: #854F0B; }
+  .cat-frozen   { background: #EEEDFE; color: #534AB7; }
+  .cat-other    { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+  .del-btn { background: none; border: none; cursor: pointer; color: var(--color-text-tertiary); font-size: 16px; padding: 0 2px; line-height: 1; transition: color 0.1s; }
+  .del-btn:hover { color: var(--color-text-danger); }
+  .empty { text-align: center; padding: 2rem 0; color: var(--color-text-secondary); font-size: 14px; }
+  .progress-wrap { margin-bottom: 1rem; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .progress-bar { height: 4px; background: var(--color-background-secondary); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--color-background-success); border-radius: 2px; transition: width 0.3s; }
+  .section-header { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin: 1rem 0 6px; }
+</style>
+<h2 class="sr-only">Smart grocery list — add items with category and quantity, check them off as you shop</h2>
+<div id="app">
+  <div class="row">
+    <input type="text" id="inp-name" placeholder="Item name..." style="flex:2">
+    <input type="number" id="inp-qty" value="1" min="1" max="99" style="width:64px">
+    <select id="inp-cat">
+      <option value="produce">Produce</option>
+      <option value="dairy">Dairy</option>
+      <option value="meat">Meat</option>
+      <option value="bakery">Bakery</option>
+      <option value="frozen">Frozen</option>
+      <option value="other">Other</option>
+    </select>
+    <button id="btn-add" onclick="addItem()"><i class="ti ti-plus" aria-hidden="true"></i> Add</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="s-total">0</div><div class="stat-l">items</div></div>
+    <div class="stat"><div class="stat-n" id="s-done">0</div><div class="stat-l">in cart</div></div>
+    <div class="stat"><div class="stat-n" id="s-left">0</div><div class="stat-l">remaining</div></div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label"><span>shopping progress</span><span id="pct-label">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('remaining',this)">Remaining</button>
+    <button class="filter-btn" onclick="setFilter('produce',this)">Produce</button>
+    <button class="filter-btn" onclick="setFilter('dairy',this)">Dairy</button>
+    <button class="filter-btn" onclick="setFilter('meat',this)">Meat</button>
+    <button class="filter-btn" onclick="setFilter('bakery',this)">Bakery</button>
+    <button class="filter-btn" onclick="setFilter('frozen',this)">Frozen</button>
+  </div>
+
+  <div class="list" id="list"></div>
+</div>
+
+<script>
+let items = [
+  { id:1, name:'Apples', qty:4, cat:'produce', done:false },
+  { id:2, name:'Whole milk', qty:1, cat:'dairy', done:false },
+  { id:3, name:'Sourdough bread', qty:1, cat:'bakery', done:false },
+  { id:4, name:'Chicken breast', qty:2, cat:'meat', done:false },
+  { id:5, name:'Spinach', qty:1, cat:'produce', done:false },
+];
+let nextId = 6;
+let filter = 'all';
+
+function addItem() {
+  const name = document.getElementById('inp-name').value.trim();
+  const qty  = parseInt(document.getElementById('inp-qty').value) || 1;
+  const cat  = document.getElementById('inp-cat').value;
+  if (!name) return;
+  items.push({ id: nextId++, name, qty, cat, done: false });
+  document.getElementById('inp-name').value = '';
+  document.getElementById('inp-qty').value = 1;
+  render();
+}
+
+function toggle(id) {
+  const item = items.find(i => i.id === id);
+  if (item) { item.done = !item.done; render(); }
+}
+
+function remove(id) {
+  items = items.filter(i => i.id !== id);
+  render();
+}
+
+function setFilter(f, el) {
+  filter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function render() {
+  const total = items.length;
+  const done  = items.filter(i => i.done).length;
+  const left  = total - done;
+  const pct   = total ? Math.round(done / total * 100) : 0;
+
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-done').textContent  = done;
+  document.getElementById('s-left').textContent  = left;
+  document.getElementById('pct-label').textContent = pct + '%';
+  document.getElementById('prog-fill').style.width  = pct + '%';
+
+  let visible = items;
+  if (filter === 'remaining') visible = items.filter(i => !i.done);
+  else if (filter !== 'all')  visible = items.filter(i => i.cat === filter);
+
+  const list = document.getElementById('list');
+
+  if (visible.length === 0) {
+    list.innerHTML = '<div class="empty">No items here. Add something above!</div>';
+    return;
+  }
+
+  const cats = ['produce','dairy','meat','bakery','frozen','other'];
+  let html = '';
+
+  if (filter === 'all' || filter === 'remaining') {
+    const undone = visible.filter(i => !i.done);
+    const doneItems = visible.filter(i => i.done);
+    if (undone.length) { html += renderItems(undone); }
+    if (doneItems.length) { html += '<div class="section-header">In cart</div>' + renderItems(doneItems); }
+  } else {
+    html = renderItems(visible);
+  }
+
+  list.innerHTML = html;
+}
+
+function renderItems(arr) {
+  return arr.map(item => `
+    <div class="item${item.done ? ' checked' : ''}" id="item-${item.id}">
+      <div class="item-check${item.done ? ' done' : ''}" onclick="toggle(${item.id})" role="checkbox" aria-checked="${item.done}" tabindex="0"></div>
+      <span class="item-name">${item.name}</span>
+      <span class="item-qty">× ${item.qty}</span>
+      <span class="cat-badge cat-${item.cat}">${item.cat}</span>
+      <button class="del-btn" onclick="remove(${item.id})" aria-label="Remove ${item.name}"><i class="ti ti-x" aria-hidden="true"></i></button>
+    </div>
+  `).join('');
+}
+
+document.getElementById('inp-name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addItem();
+});
+
+render();
+</script>

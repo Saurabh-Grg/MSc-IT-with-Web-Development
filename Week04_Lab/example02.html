@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Development</title>
+</head>
+<body>
+    <h1>Example 2</h1>
+    <p>Fruit: <input type="text" id="inpFruit"></p>
+    <p><input type="button" id="btnAdd" value="Add Fruit"></p>
+    <p><input type="button" id="btnRemove" value="Remove Fruit"></p>
+    <p id="parFruits">My Fruits</p>
+    <script>
+        const inpFruit = document.getElementById('inpFruit');
+        const btnAdd = document.getElementById('btnAdd');
+        const btnRemove = document.getElementById('btnRemove');
+        const parFruits = document.getElementById('parFruits');
+        let fruits = ["Apple", "Banana", "Orange"];
+
+        function displayFruits() {
+            let text = "";
+            for (let i = 0; i < fruits.length; i++) {
+                text += fruits[i] + " ";
+            }
+            parFruits.textContent = text;
+        }
+
+        function addFruit() {
+            const newFruit = inpFruit.value;
+            if (newFruit) {
+                fruits.push(newFruit);
+                displayFruits();
+            }
+        }
+
+        function removeFruit() {
+            if (fruits.length > 0) {
+                fruits.pop();
+                displayFruits();
+            }
+        }
+
+        btnAdd.addEventListener('click', addFruit);
+        btnRemove.addEventListener('click', removeFruit);
+
+
+
+        displayFruits();
+
+
+    </script>
+</body>
+</html>
