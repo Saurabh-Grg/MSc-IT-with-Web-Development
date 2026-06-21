@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Development</title>
+  </head>
+  <body>
+    <form id="formDetails" action="submissionpage.php" method="post">
+      <p>Name: <input type="text" id="tbxName" name="tbxName" /></p>
+      <p>Email: <input type="email" id="tbxEmail" name="tbxEmail" /></p>
+      <p>Age: <input type="number" id="tbxAge" name="tbxAge" /></p>
+      <input type="submit" id="btnSubmit" name="submit" value="Submit" />
+    </form>
+    <script> 
+      const formDetails = document.getElementById('formDetails');
+      const tbxName = document.getElementById('tbxName');
+      const tbxEmail = document.getElementById('tbxEmail');
+      const tbxAge = document.getElementById('tbxAge');
+
+      formDetails.addEventListener("submit", function(event){
+        if (! validateForm()) {
+          event.preventDefault();
+        }
+
+      });
+
+      function validateForm() {
+        let name = tbxName.value;
+        if (name === "") {
+          alert("Name must be filled out");
+          return false;
+        }
+        let email = tbxEmail.value;
+        if (email === "") {
+          alert("Email must be filled out");
+          return false;
+        }
+
+        let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (! emailPattern.test(email)) {
+          alert("Please enter a valid email address.");
+          return false;
+        }
+
+        
+        let age = tbxAge.value;
+        if (age === "") {
+          alert("Age must be filled out");
+          return false;
+        }
+        return true;
+      }
+    </script>
+  </body>
+  
+</html>
