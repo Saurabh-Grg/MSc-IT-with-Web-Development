@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p><input type="button" id="showAnimalButton" value="Show Animal"></p>
+   <p id="animalOutput"></p>
+   <script>
+        const showAnimalButton = document.getElementById("showAnimalButton");
+        const animalOutput = document.getElementById("animalOutput");
+
+        const animals = ["🐶 Dog", "🐱 Cat", "🐰 Rabbit", "🦊 Fox", "🐻 Bear"];
+        let i = 0;
+        showAnimalButton.addEventListener("click", function() {
+            animalOutput.textContent = "(" + i + ")" + animals[i];
+            i = (i + 1) % animals.length; // Loop back to the start of the array
+        });
+    </script>
+</body>
+</html>

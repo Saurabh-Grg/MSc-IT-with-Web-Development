@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p>x: <input type="number" id="x"></p>
+    <p>y: <input type="number" id="y"></p>
+    <p><input id="calculateButton" type="button" value="="></p>
+    <p id="output"></p>
+    <script>
+        const xInput = document.getElementById("x");
+        const yInput = document.getElementById("y");
+        const calculateButton = document.getElementById("calculateButton");
+        const output = document.getElementById("output");
+
+        calculateButton.addEventListener("click", function() {
+            let x = Number(xInput.value);
+            let y = Number(yInput.value);
+            let sum = x + y;
+            output.innerHTML = "Sum: " + sum + "<br>" +
+                                "Product: " + (x * y) + "<br>" +
+                                "Difference: " + (x - y) + "<br>" +
+                                "Quotient: " + (x / y) + "<br>" +
+                                "Remainder: " + (x % y) + "<br>" +
+                                "Greater: " + (x > y) + "<br>" +
+                                "Smaller: " + (x < y);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p>First Name: <input type="text" id="firstName"></p>
+    <p id="output"></p>
+    <p><input id="submitBtn" type="button" value="Press Me!"></p>
+    <script>
+        const firstNameInput = document.getElementById("firstName");
+        const output = document.getElementById("output");
+        const submitBtn = document.getElementById("submitBtn");
+
+        submitBtn.addEventListener("click", function() {
+           let FN = firstNameInput.value;
+              if (FN.trim() === "") {
+                output.textContent = "Please enter your first name.";
+              } else {
+                output.textContent = "Hello, " + FN + "! Welcome to Web Development!";
+              }
+        });
+    </script>
+</body>
+</html>
